@@ -34,7 +34,7 @@ def buscar_cotacao_periodicamente():
             enviar_mensagem_telegram(mensagem)
         except Exception as e:
             print("Erro ao buscar cotação:", e)
-        time.sleep(60 * 5)  # Espera 5 minutos
+        time.sleep(60 * 20)  # Espera 20 minutos
 
 @app.route('/')
 def home():
