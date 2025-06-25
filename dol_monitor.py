@@ -4,6 +4,7 @@ import time
 import requests
 
 app = Flask(__name__)
+minutos = 60
 
 def buscar_cotacao_periodicamente():
     while True:
@@ -15,7 +16,7 @@ def buscar_cotacao_periodicamente():
             # Aqui você pode incluir envio via Telegram, salvar em banco, etc.
         except Exception as e:
             print("Erro ao buscar cotação:", e)
-        time.sleep(60 * 5)  # Executa a cada 5 minutos
+        time.sleep(60 * minutos)  # Executa a cada minutos minutos
 
 @app.route('/')
 def home():
