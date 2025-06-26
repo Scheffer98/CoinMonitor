@@ -4,7 +4,7 @@ import time
 import requests
 import os
 from datetime import datetime
-from zoneinfo import ZoneInfo  # Python 3.9+
+from zoneinfo import ZoneInfo  # Requer Python 3.9+
 
 app = Flask(__name__)
 
@@ -12,6 +12,7 @@ app = Flask(__name__)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
+# Envia mensagem para o Telegram
 def enviar_mensagem_telegram(mensagem, alerta_forte=False):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
@@ -21,15 +22,17 @@ def enviar_mensagem_telegram(mensagem, alerta_forte=False):
             f"{mensagem}\n"
             "🔊📱 <b>Verifique agora!</b>"
         )
-        parse_mode = "HTML"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": mensagem,
+            "parse_mode": "HTML"
+        }
     else:
-        parse_mode = None
-
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": mensagem,
-        "parse_mode": parse_mode
-    }
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": mensagem
+            # parse_mode não é incluído se não for necessário
+        }
 
     try:
         r = requests.post(url, json=payload)
@@ -38,6 +41,7 @@ def enviar_mensagem_telegram(mensagem, alerta_forte=False):
     except Exception as e:
         print("Exceção no envio para o Telegram:", e)
 
+# Busca cotação entre 07h e 22h de Brasília, a cada 1 hora
 def buscar_cotacao_periodicamente():
     while True:
         agora = datetime.now(ZoneInfo("America/Sao_Paulo"))
