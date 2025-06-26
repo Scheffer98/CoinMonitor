@@ -4,6 +4,7 @@ import time
 import requests
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo  # Python 3.9+
 
 app = Flask(__name__)
 
@@ -11,19 +12,16 @@ app = Flask(__name__)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-# Envia mensagem para o Telegram
 def enviar_mensagem_telegram(mensagem, alerta_forte=False):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    
-    # Se for alerta forte, adiciona som (simulado com emojis e destaque)
+
     if alerta_forte:
         mensagem = (
-            "🚨🚨🚨\n"
-            "⚠️ *ALERTA: Dólar abaixo de R$5,41!*\n"
+            "🚨🚨🚨<b>ALERTA: Dólar abaixo de R$5,41!</b>\n"
             f"{mensagem}\n"
-            "🔊📱 *Verifique agora!*"
+            "🔊📱 <b>Verifique agora!</b>"
         )
-        parse_mode = "Markdown"
+        parse_mode = "HTML"
     else:
         parse_mode = None
 
@@ -32,6 +30,7 @@ def enviar_mensagem_telegram(mensagem, alerta_forte=False):
         "text": mensagem,
         "parse_mode": parse_mode
     }
+
     try:
         r = requests.post(url, json=payload)
         if r.status_code != 200:
@@ -39,10 +38,9 @@ def enviar_mensagem_telegram(mensagem, alerta_forte=False):
     except Exception as e:
         print("Exceção no envio para o Telegram:", e)
 
-# Busca cotação entre 07h e 22h, a cada 1 hora
 def buscar_cotacao_periodicamente():
     while True:
-        agora = datetime.now()
+        agora = datetime.now(ZoneInfo("America/Sao_Paulo"))
         hora = agora.hour
 
         if 7 <= hora < 22:
@@ -62,7 +60,7 @@ def buscar_cotacao_periodicamente():
             except Exception as e:
                 print("Erro ao buscar cotação:", e)
         else:
-            print(f"[{agora.strftime('%H:%M:%S')}] Fora do horário configurado (07h–22h). Aguardando...")
+            print(f"[{agora.strftime('%H:%M:%S')}] Fora do horário de operação (07h–22h BR).")
 
         time.sleep(60 * 60)  # Espera 1 hora
 
